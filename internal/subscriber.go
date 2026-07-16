@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"io"
 	"log"
 
@@ -19,6 +20,7 @@ func NewBrokerSvc(reg dominus.BrokerRegister) dominus.Server {
 // StreamServerConn handles server-initiated streams.
 func (s *brokerSvc) ServerStream(req *do.StreamRequestMessage, stream do.BrokerAPI_ServerStreamServer) error {
 	count := 1000
+	fmt.Printf("%s\n", req.GetPayload())
 	for count > 0 {
 		// Send outbound messages to client
 		if err := stream.Send(&do.StreamResponseMessage{
@@ -43,7 +45,7 @@ func (s *brokerSvc) ClientStream(stream do.BrokerAPI_ClientStreamServer) error {
 		if err != nil {
 			return err
 		}
-		log.Printf("Received: %s", msg.GetPayload())
+		fmt.Printf("Received: %s", msg.GetPayload())
 	}
 }
 
