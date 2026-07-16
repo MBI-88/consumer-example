@@ -6,7 +6,6 @@ import (
 
 	do "github.com/MBI-88/dominus-proto-definition/dominus"
 	"github.com/MBI-88/dominus-sdk/dominus"
-	"google.golang.org/grpc"
 )
 
 type brokerSvc struct {
@@ -18,7 +17,7 @@ func NewBrokerSvc(reg dominus.BrokerRegister) dominus.Server {
 }
 
 // StreamServerConn handles server-initiated streams.
-func (s *brokerSvc) ServerStream(req *do.StreamRequestMessage, stream grpc.ServerStreamingServer[do.StreamResponseMessage]) error {
+func (s *brokerSvc) ServerStream(req *do.StreamRequestMessage, stream do.BrokerAPI_ServerStreamServer) error {
 	count := 1000
 	for count > 0 {
 		// Send outbound messages to client
@@ -35,7 +34,7 @@ func (s *brokerSvc) ServerStream(req *do.StreamRequestMessage, stream grpc.Serve
 }
 
 // StreamClientConn handles client-initiated streams.
-func (s *brokerSvc) ClientStream(stream grpc.ClientStreamingServer[do.StreamRequestMessage, do.StreamResponseMessage]) error {
+func (s *brokerSvc) ClientStream(stream do.BrokerAPI_ClientStreamServer) error {
 	for {
 		msg, err := stream.Recv()
 		if err == io.EOF {
@@ -49,7 +48,7 @@ func (s *brokerSvc) ClientStream(stream grpc.ClientStreamingServer[do.StreamRequ
 }
 
 // BiStreamConn handles bidirectional streams.
-func (s *brokerSvc) BidirectionalStream(stream grpc.BidiStreamingServer[do.StreamRequestMessage, do.StreamResponseMessage]) error {
+func (s *brokerSvc) BidirectionalStream(stream do.BrokerAPI_BidirectionalStreamServer) error {
 	for {
 		msg, err := stream.Recv()
 		if err == io.EOF {
