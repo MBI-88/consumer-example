@@ -28,46 +28,44 @@ func NewConsumer(sqs sdk.Sqs, workId, groupId string) Consumer {
 }
 
 func (c *consumer) GetMessage(stop <-chan os.Signal) {
-	clock := time.NewTicker(10*time.Second)
+	clock := time.NewTicker(15 * time.Second)
 
 	for {
 		select {
 		case <-clock.C:
-			c.doRequest()
+			resp, err := c.sqs.UseConsumer(&dominus.ConsumerRequest{
+				WorkerId: c.workerId,
+				GroupId:  c.groupId,
+			})
+
+			if err != nil {
+				log.Println(err)
+				
+			} else {
+
+				log.Printf("Response {message_id: %s, created_at: %s, message: %s}",
+					resp.GetMessageId(),
+					resp.GetDate(),
+					resp.GetMessage(),
+				)
+				time.Sleep(15 * time.Second)
+
+				_, err = c.sqs.UseAck(&dominus.ConsumerRequest{
+					MessageId: resp.GetMessageId(),
+					WorkerId:  c.workerId,
+					GroupId:   c.groupId,
+				})
+
+				if err != nil {
+					log.Println(err)
+				}else {
+					log.Println("UseAck successfult!")
+				}
+			}
 
 		case <-stop:
 			return
 		}
 	}
 
-}
-
-func (c *consumer) doRequest() {
-	resp, err := c.sqs.UseConsumer(&dominus.ConsumerRequest{
-		WorkerId: c.workerId,
-		GroupId:  c.groupId,
-	})
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	var messageID = resp.GetMessageId()
-
-	log.Printf("Response {message_id: %s, created_at: %s, message: %s}",
-		messageID,
-		resp.GetDate(),
-		resp.GetMessage(),
-	)
-
-	time.Sleep(15 * time.Second)
-	_, err = c.sqs.UseAck(&dominus.ConsumerRequest{
-		MessageId: messageID,
-		WorkerId:  c.workerId,
-		GroupId:   c.groupId,
-	})
-
-	if err != nil {
-		log.Println(err)
-	}
 }
