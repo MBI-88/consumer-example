@@ -58,7 +58,7 @@ func main() {
 	srv := internal.NewBrokerSvc(reg)
 	go brokerListening(srv, port)
 
-	//go sqsClient(DOMINUS_URL, stop)
+	go sqsClient(DOMINUS_URL, stop)
 
 	<-stop
 	srv.GracefulStop()
