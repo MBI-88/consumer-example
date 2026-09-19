@@ -15,9 +15,9 @@ import (
 	"github.com/google/uuid"
 )
 
-const (
-	API_KEY     = "dominus-api-key-1233464687"
-	DOMINUS_URL = "127.0.0.1:5000"
+var (
+	API_KEY     = os.Getenv("API_KEY")
+	DOMINUS_URL = os.Getenv("DOMINUS_URL")
 )
 
 func brokerListening(server dominus.Server, port int64) {
